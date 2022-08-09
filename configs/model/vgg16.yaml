@@ -1,0 +1,6 @@
+img_size: 224
+grid: 7
+b: 2
+fcn: True # use fully conv net
+num_gpu: 1
+sync_bn: False

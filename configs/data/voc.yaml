@@ -1,0 +1,10 @@
+path: D:/competition_data/OBJECT_DETECTION/PascalVoc/VOCdevkit
+nc: 20 # num classes
+mean: [ 123, 117, 104 ]
+names: [ 'aeroplane', 'bicycle', 'bird', 'boat',
+         'bottle', 'bus', 'car', 'cat', 'chair',
+         'cow', 'diningtable', 'dog', 'horse',
+         'motorbike', 'person', 'pottedplant',
+         'sheep', 'sofa', 'train', 'tvmonitor' ]
+
+dataprocess: vocdataprocess # optional
