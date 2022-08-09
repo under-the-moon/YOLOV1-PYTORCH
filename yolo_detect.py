@@ -10,7 +10,7 @@ from tools.nms import nms
 
 class YoloDetect:
 
-    def __init__(self, model, names, img_size=224, threshold=.3, device=None):
+    def __init__(self, model, names, img_size=224, threshold=.4, device=None):
         self.model = model
         self.names = names
         self.img_size = img_size
@@ -115,5 +115,5 @@ if __name__ == '__main__':
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     detect = YoloDetect(model, names=names, device=device)
-    detect.detect_img('D:/competition_data/OBJECT_DETECTION/PascalVoc/VOCdevkit/VOC2007/JPEGImages/000044.jpg',
-                      save=False)
+    detect.detect_img('D:/competition_data/OBJECT_DETECTION/PascalVoc/VOCdevkit/VOC2007/JPEGImages/000077.jpg',
+                      save=True)
