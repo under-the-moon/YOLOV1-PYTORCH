@@ -15,7 +15,7 @@ def convert_to_xywh(boxes):
     """
 
     return np.concatenate(
-        [(boxes[..., :2] + boxes[..., 2:]) / 2.0, boxes[..., 2:] - boxes[..., :2]],
+        [(boxes[..., :2] + boxes[..., 2:4]) / 2.0, boxes[..., 2:4] - boxes[..., :2]],
         axis=-1,
     )
 
@@ -27,7 +27,7 @@ def convert_to_corners(boxes):
     :return:
     """
     return np.concatenate(
-        [boxes[..., :2] - boxes[..., 2:] / 2.0, boxes[..., :2] + boxes[..., 2:] / 2.0],
+        [boxes[..., :2] - boxes[..., 2:4] / 2.0, boxes[..., :2] + boxes[..., 2:4] / 2.0],
         axis=-1,
 
     )
@@ -41,7 +41,7 @@ def convert_to_xywh_tensor(boxes):
     """
 
     return torch.concat(
-        [(boxes[..., :2] + boxes[..., 2:]) / 2.0, boxes[..., 2:] - boxes[..., :2]],
+        [(boxes[..., :2] + boxes[..., 2:4]) / 2.0, boxes[..., 2:4] - boxes[..., :2]],
         dim=-1,
     )
 
@@ -53,7 +53,7 @@ def convert_to_corners_tensor(boxes):
     :return:
     """
     return torch.concat(
-        [boxes[..., :2] - boxes[..., 2:] / 2.0, boxes[..., :2] + boxes[..., 2:] / 2.0],
+        [boxes[..., :2] - boxes[..., 2:4] / 2.0, boxes[..., :2] + boxes[..., 2:4] / 2.0],
         dim=-1,
 
     )
@@ -67,7 +67,7 @@ def calc_iou(pred_boxes, target_boxes):
     :return:
     """
     lu = torch.maximum(pred_boxes[..., :2], target_boxes[..., :2])
-    rd = torch.minimum(pred_boxes[..., 2:], target_boxes[..., 2:])
+    rd = torch.minimum(pred_boxes[..., 2:4], target_boxes[..., 2:4])
 
     intersection = torch.maximum(torch.zeros_like(rd - lu), rd - lu)
     intersection_area = intersection[..., 0] * intersection[..., 1]

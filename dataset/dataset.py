@@ -51,7 +51,6 @@ class MyDataset(Dataset):
 
     def get_target(self, boxes, grid):
         target = np.zeros((grid, grid, self.b * 5 + self.num_classes))
-
         for box in boxes:
             x, y, w, h, c = box
             c = int(c)
@@ -60,9 +59,7 @@ class MyDataset(Dataset):
             delta_x = x - i / grid
             delta_y = y - j / grid
             target[j, i, c + self.b * 5] = 1
-
             xywh = [delta_x, delta_y, w, h]
-
             target[j, i, 0:4] = xywh
             target[j, i, 4] = 1
             target[j, i, 5:9] = xywh

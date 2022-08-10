@@ -14,7 +14,6 @@ from sklearn.model_selection import train_test_split
 from dataprocess.transform import Transform
 from torch.utils.data import DataLoader
 from models.yolo_loss import YoloLoss
-from models.yolo_loss2 import YoloLoss as YoloLoss2
 from tools.box_transforms import convert_to_corners
 from tools.visualization import save_eval_img
 
@@ -101,24 +100,24 @@ def train(epochs, lrs, num_gpu, model, optimizer, writer, train_loader, val_load
             writer.add_scalars('Val_Loss', {'val': loss}, global_step=val_global_step)
             val_global_step += 1
 
-        if (epoch + 1) % 5 == 0:
-            outs = torch.concat(eval_outs, dim=0)
-            imgs = torch.concat(eval_imgs, dim=0)
-            imgs = imgs.cpu().numpy()
+        # if (epoch + 1) % 5 == 0:
+        outs = torch.concat(eval_outs, dim=0)
+        imgs = torch.concat(eval_imgs, dim=0)
+        imgs = imgs.cpu().numpy()
 
-            batch_boxes, _, _ = model.decoder(outs, device=device)
-            n = batch_boxes.shape[0]
-            for i in range(n):
-                img = imgs[i]
-                boxes = batch_boxes[i]
-                num = boxes.shape[0]
-                if num == 0:
-                    continue
-                h, w = img.shape[1:3]
-                boxes = boxes * np.array([w, h, w, h])
-                boxes = convert_to_corners(boxes)
+        batch_boxes, _, _ = model.decoder(outs, device=device)
+        n = batch_boxes.shape[0]
+        for i in range(n):
+            img = imgs[i]
+            boxes = batch_boxes[i]
+            num = boxes.shape[0]
+            if num == 0:
+                continue
+            h, w = img.shape[1:3]
+            boxes = boxes * np.array([w, h, w, h])
+            boxes = convert_to_corners(boxes)
 
-                save_eval_img(img, boxes, os.path.join(eval_path, f'{epoch + 1}_{i}.jpg'))
+            save_eval_img(img, boxes, os.path.join(eval_path, f'{epoch + 1}_{i}.jpg'))
 
 
 def main(args):
@@ -152,7 +151,7 @@ def main(args):
     if not os.path.exists(weights_path):
         os.makedirs(weights_path)
 
-    eval_path = os.path.join(workdir, 'eval')
+    eval_path = os.path.join(logs_path, 'eval')
     if not os.path.exists(eval_path):
         os.makedirs(eval_path)
 
@@ -198,7 +197,8 @@ def main(args):
 
     # load train data
     print('load train data and val data')
-    train_dataset = MyDataset(train_lines + val_lines, img_size=img_size, grid=grid, b=b, num_classes=nc, transform=Transform())
+    train_dataset = MyDataset(train_lines, img_size=img_size, grid=grid, b=b, num_classes=nc,
+                              transform=Transform())
     val_dataset = MyDataset(val_lines, img_size=img_size, grid=grid, b=b, num_classes=nc)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size)
@@ -236,8 +236,8 @@ def main(args):
 
     # load loss
     print('load loss')
-    criterion = YoloLoss2(grid, b, gama_coord, gama_noobj, device=device)
-    # criterion = YoloLoss(grid, b, gama_coord, gama_noobj, device=device)
+    # criterion = YoloLoss2(grid, b, gama_coord, gama_noobj, device=device)
+    criterion = YoloLoss(grid, b, gama_coord, gama_noobj, device=device)
 
     train(epochs, lrs, num_gpu, model, optimizer, writer, train_loader, val_loader, criterion, device, weights_path,
           eval_path)
@@ -247,7 +247,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLOV1 Train')
     parser.add_argument('--data_path', default='data/voc_data.txt', type=str, help='dataset settings')
     parser.add_argument('--workdir', default='run', type=str, help='dataset settings')
-    parser.add_argument('--pre_weights', default='run/logs/weights/yolo_best.pth', type=str, help='pre weights file')
+    parser.add_argument('--pre_weights', default=None, type=str, help='pre weights file')
     parser.add_argument('--data', default='configs/data/voc.yaml', type=str, help='dataset settings')
     parser.add_argument('--hp', default='configs/hp/hp.yaml', type=str, help='train hyper params')
     parser.add_argument('--model', default='configs/model/vgg16.yaml', type=str, help='model params')
